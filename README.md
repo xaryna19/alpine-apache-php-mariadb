@@ -7,6 +7,7 @@ Docker Compose
     services:
       web:
         image: xaryna/alpine-apache-php-mariadb
+        restart: always
         ports:
           - "1880:80"
           - "1443:443"
