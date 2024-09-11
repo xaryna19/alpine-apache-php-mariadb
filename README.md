@@ -10,7 +10,7 @@ Docker Compose
         restart: always
         ports:
           - "1880:80"
-          - "1443:443"
+         # - "1443:443"
         volumes:
           - /home/debian/docker/data/app/first-app/app:/htdocs
           - /home/debian/docker/data/app/first-app/data:/var/lib/mysql
