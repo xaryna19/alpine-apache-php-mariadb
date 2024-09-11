@@ -14,4 +14,13 @@ Docker Compose
           - /home/debian/docker/data/app/first-app/app:/htdocs
           - /home/debian/docker/data/app/first-app/data:/var/lib/mysql
           - /home/debian/docker/data/app/first-app/logs:/var/lib/mysql/mysql-bin
+        environment:
+          SERVER_ADMIN: test@localhost.me
+          SERVER_NAME: localhost
+          # MYSQL_ROOT_PASSWORD: 
+          # MYSQL_DATABASE: 
+          # MYSQL_USER: 
+          # MYSQL_PASSWORD: 
+          # MYSQL_CHARSET: 
+          # MYSQL_COLLATION: 
 ```
