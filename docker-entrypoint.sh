@@ -4,8 +4,7 @@
 set -eu
 
 SERVER_ADMIN="${SERVER_ADMIN:-you@example.com}"
-HTTP_SERVER_NAME="${HTTP_SERVER_NAME:-www.example.com}"
-HTTPS_SERVER_NAME="${HTTPS_SERVER_NAME:-www.example.com}"
+SERVER_NAME="${HTTP_SERVER_NAME:-www.example.com}"
 LOG_LEVEL="${LOG_LEVEL:-info}"
 TZ="${TZ:-UTC}"
 PHP_MEMORY_LIMIT="${PHP_MEMORY_LIMIT:-256M}"
@@ -15,7 +14,7 @@ echo 'Updating configurations'
 
 # Change Server Admin, Name, Document Root
 sed -i "s/ServerAdmin\ you@example.com/ServerAdmin\ ${SERVER_ADMIN}/" /etc/apache2/httpd.conf
-sed -i "s/#ServerName\ www.example.com:80/ServerName\ ${HTTP_SERVER_NAME}/" /etc/apache2/httpd.conf
+sed -i "s/#ServerName\ www.example.com:80/ServerName\ ${SERVER_NAME}/" /etc/apache2/httpd.conf
 sed -i 's#^DocumentRoot ".*#DocumentRoot "/htdocs"#g' /etc/apache2/httpd.conf
 sed -i 's#Directory "/var/www/localhost/htdocs"#Directory "/htdocs"#g' /etc/apache2/httpd.conf
 sed -i 's#AllowOverride None#AllowOverride All#' /etc/apache2/httpd.conf
@@ -29,7 +28,7 @@ sed -i 's#^ErrorLog .*#ErrorLog "/dev/stderr"#g' /etc/apache2/conf.d/ssl.conf
 sed -i 's#^TransferLog .*#TransferLog "/dev/stdout"#g' /etc/apache2/conf.d/ssl.conf
 sed -i 's#^DocumentRoot ".*#DocumentRoot "/htdocs"#g' /etc/apache2/conf.d/ssl.conf
 sed -i "s/ServerAdmin\ you@example.com/ServerAdmin\ ${SERVER_ADMIN}/" /etc/apache2/conf.d/ssl.conf
-sed -i "s/ServerName\ www.example.com:443/ServerName\ ${HTTPS_SERVER_NAME}/" /etc/apache2/conf.d/ssl.conf
+sed -i "s/ServerName\ www.example.com:443/ServerName\ ${SERVER_NAME}/" /etc/apache2/conf.d/ssl.conf
 
 # Re-define LogLevel
 sed -i "s#^LogLevel .*#LogLevel ${LOG_LEVEL}#g" /etc/apache2/httpd.conf
@@ -135,44 +134,10 @@ else
 
     mysql_install_db --user=mysql --ldata=/var/lib/mysql > /dev/null
 
-    # Handle MYSQL_ROOT_PASSWORD
-    if [ -n "$MYSQL_ROOT_PASSWORD_FILE" ]; then
-        MYSQL_ROOT_PASSWORD=$(read_secret "$MYSQL_ROOT_PASSWORD_FILE")
-    elif [ -f "/run/secrets/mysql_root_password" ]; then
-        MYSQL_ROOT_PASSWORD=$(read_secret "/run/secrets/mysql_root_password")
-    fi
-
-    if [ -z "$MYSQL_ROOT_PASSWORD" ]; then
-        MYSQL_ROOT_PASSWORD=$(pwgen 16 1)
-        echo "[i] MySQL root Password: $MYSQL_ROOT_PASSWORD"
-    fi
-
-    # Handle MYSQL_DATABASE
-    if [ -n "$MYSQL_DATABASE_FILE" ]; then
-        MYSQL_DATABASE=$(read_secret "$MYSQL_DATABASE_FILE")
-    elif [ -f "/run/secrets/mysql_database" ]; then
-        MYSQL_DATABASE=$(read_secret "/run/secrets/mysql_database")
-    else
-        MYSQL_DATABASE=${MYSQL_DATABASE:-""}
-    fi
-
-    # Handle MYSQL_USER
-    if [ -n "$MYSQL_USER_FILE" ]; then
-        MYSQL_USER=$(read_secret "$MYSQL_USER_FILE")
-    elif [ -f "/run/secrets/mysql_user" ]; then
-        MYSQL_USER=$(read_secret "/run/secrets/mysql_user")
-    else
-        MYSQL_USER=${MYSQL_USER:-""}
-    fi
-
-    # Handle MYSQL_PASSWORD
-    if [ -n "$MYSQL_PASSWORD_FILE" ]; then
-        MYSQL_PASSWORD=$(read_secret "$MYSQL_PASSWORD_FILE")
-    elif [ -f "/run/secrets/mysql_password" ]; then
-        MYSQL_PASSWORD=$(read_secret "/run/secrets/mysql_password")
-    else
-        MYSQL_PASSWORD=${MYSQL_PASSWORD:-""}
-    fi
+    MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-""}
+    MYSQL_DATABASE=${MYSQL_DATABASE:-""}
+    MYSQL_USER=${MYSQL_USER:-""}
+    MYSQL_PASSWORD=${MYSQL_PASSWORD:-""}
 
     tfile=$(mktemp)
     if [ ! -f "$tfile" ]; then
